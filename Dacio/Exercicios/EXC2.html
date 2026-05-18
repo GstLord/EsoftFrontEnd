@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor de Temperatura</title>
+
+  <style>
+
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f2f2f2;
+    }
+
+    .container{
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 350px;
+    }
+
+    h1{
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    .campo{
+      margin-bottom: 20px;
+    }
+
+    label{
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input{
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>Conversor</h1>
+
+    <div class="campo">
+      <label for="celsius">Celsius (°C)</label>
+
+      <input 
+        type="number" 
+        id="celsius"
+        step="0.1"
+        placeholder="Digite em Celsius"
+      >
+    </div>
+
+    <div class="campo">
+      <label for="fahrenheit">Fahrenheit (°F)</label>
+
+      <input 
+        type="number" 
+        id="fahrenheit"
+        step="0.1"
+        placeholder="Digite em Fahrenheit"
+      >
+    </div>
+
+  </div>
+
+  <script>
+
+    const celsius = document.getElementById("celsius");
+    const fahrenheit = document.getElementById("fahrenheit");
+
+    celsius.addEventListener("input", () => {
+
+      let valorCelsius = parseFloat(celsius.value);
+
+      if(isNaN(valorCelsius)){
+        fahrenheit.value = "";
+        return;
+      }
+
+      let conversao = (valorCelsius * 9/5) + 32;
+
+      fahrenheit.value = conversao.toFixed(2);
+
+    });
+
+    fahrenheit.addEventListener("input", () => {
+
+      let valorFahrenheit = parseFloat(fahrenheit.value);
+
+      if(isNaN(valorFahrenheit)){
+        celsius.value = "";
+        return;
+      }
+
+      let conversao = (valorFahrenheit - 32) * 5/9;
+
+      celsius.value = conversao.toFixed(2);
+
+    });
+
+  </script>
+
+</body>
+</html>

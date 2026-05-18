@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analisador de Cartão</title>
+
+  <style>
+
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f2f2f2;
+    }
+
+    .card{
+      width: 500px;
+      background: white;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h1{
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    .campo{
+      margin-bottom: 20px;
+    }
+
+    label{
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input{
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button{
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover{
+      background: #0056b3;
+    }
+
+    #painel{
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 10px;
+      background: #f8f8f8;
+      line-height: 1.9;
+      font-size: 17px;
+    }
+
+    .valido{
+      color: green;
+      font-weight: bold;
+    }
+
+    .invalido{
+      color: red;
+      font-weight: bold;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="card">
+
+    <h1>Analisador de Cartão</h1>
+
+    <div class="campo">
+
+      <label for="cartao">
+        Número do Cartão
+      </label>
+
+      <input
+        type="text"
+        id="cartao"
+        maxlength="25"
+        placeholder="Digite o número do cartão"
+      >
+
+    </div>
+
+    <button id="analisar">
+      Analisar Cartão
+    </button>
+
+    <div id="painel"></div>
+
+  </div>
+
+  <script>
+
+    const botao = document.getElementById("analisar");
+
+    botao.addEventListener("click", () => {
+
+      let numero = document
+        .getElementById("cartao")
+        .value;
+
+      numero = numero.replace(/\D/g, "");
+
+      const painel = document.getElementById("painel");
+
+      if(numero.length < 13 || numero.length > 16){
+
+        painel.innerHTML = `
+          <span class="invalido">
+            Número inválido! O cartão deve ter entre 13 e 16 dígitos.
+          </span>
+        `;
+
+        return;
+
+      }
+
+      let valido = validarLuhn(numero);
+
+      let bandeira = identificarBandeira(numero);
+
+      let setor = identificarSetor(numero);
+
+      let banco = identificarBanco(numero);
+
+      painel.innerHTML = `
+
+        <strong>Painel de Informações</strong><br><br>
+
+        Status:
+        <span class="${valido ? "valido" : "invalido"}">
+          ${valido ? "Válido" : "Inválido"}
+        </span>
+        <br>
+
+        Bandeira: ${bandeira} <br>
+
+        Categoria de Setor: ${setor} <br>
+
+        Banco Emissor: ${banco}
+
+      `;
+
+    });
+
+    function validarLuhn(numero){
+
+      let soma = 0;
+
+      let inverter = numero
+        .split("")
+        .reverse();
+
+      for(let i = 0; i < inverter.length; i++){
+
+        let digito = Number(inverter[i]);
+
+        if(i % 2 !== 0){
+
+          digito *= 2;
+
+          if(digito > 9){
+            digito -= 9;
+          }
+
+        }
+
+        soma += digito;
+
+      }
+
+      return soma % 10 === 0;
+
+    }
+
+    function identificarBandeira(numero){
+
+      if(numero.startsWith("4")){
+        return "Visa";
+      }
+
+      else if(
+        numero.startsWith("51") ||
+        numero.startsWith("52") ||
+        numero.startsWith("53") ||
+        numero.startsWith("54") ||
+        numero.startsWith("55")
+      ){
+        return "MasterCard";
+      }
+
+      else if(
+        numero.startsWith("34") ||
+        numero.startsWith("37")
+      ){
+        return "American Express";
+      }
+
+      else if(numero.startsWith("6")){
+        return "Discover / Elo";
+      }
+
+      else{
+        return "Desconhecida";
+      }
+
+    }
+
+    function identificarSetor(numero){
+
+      const primeiroDigito = numero.charAt(0);
+
+      switch(primeiroDigito){
+
+        case "1":
+          return "Companhias Aéreas";
+
+        case "2":
+          return "Companhias Aéreas e Financeiras";
+
+        case "3":
+          return "Viagens e Entretenimento";
+
+        case "4":
+        case "5":
+          return "Instituições Financeiras";
+
+        case "6":
+          return "Comércio e Bancos";
+
+        case "7":
+          return "Petróleo e Transporte";
+
+        case "8":
+          return "Telecomunicações";
+
+        case "9":
+          return "Governo";
+
+        default:
+          return "Setor desconhecido";
+
+      }
+
+    }
+
+    function identificarBanco(numero){
+
+      const iin = numero.substring(0, 4);
+
+      switch(iin){
+
+        case "4011":
+          return "Banco Infinity";
+
+        case "5100":
+          return "Master Bank";
+
+        case "3714":
+          return "American Bank";
+
+        case "6011":
+          return "Discover Financial";
+
+        default:
+          return "Banco não identificado";
+
+      }
+
+    }
+
+  </script>
+
+</body>
+</html>
